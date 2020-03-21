@@ -36,11 +36,14 @@ def is_active(service):
     """
     cmd = '/bin/systemctl status ' + service
     proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+
     lines = str(proc.communicate()[0]).split('\n')
+
     for line in lines:
         if 'Active:' in line:
             if '(running)' in line:
                 return True
+
     return False
 
 
@@ -109,10 +112,11 @@ def help(update, context):
     :param update: incoming telegram update
     :param context: the context object
     """
-    tt = 'Dostępne polecenia:'
-    for t in CMDS:
-        tt = tt + '\n"' + t + '"'
-    update.message.reply_text(tt)
+    t = 'Dostępne polecenia:'
+    for c in CMDS:
+        t = t + '\n"' + c + '"'
+
+    update.message.reply_text(t)
 
 
 def msg(update, context):
@@ -123,16 +127,20 @@ def msg(update, context):
     """
     if update.message.text.lower() == CMDS['meteo']:
         update.message.reply_text(meteo(), parse_mode=ParseMode.HTML)
+
     if update.message.text.lower() == CMDS['system']:
         update.message.reply_text(system(), parse_mode=ParseMode.HTML)
+
     if update.message.text.lower() == CMDS['pomiar']:
         update.message.reply_text("<b><u>System:</u></b>\n" + system(), parse_mode=ParseMode.HTML)
         update.message.reply_text("<b><u>Meteo:</u></b>\n" + meteo(), parse_mode=ParseMode.HTML)
+
     if update.message.text.lower() == CMDS['services']:
         t = ''
         for s in SERVICES:
             t = t + s + ' is' + (' running' if is_active(s) else ' <u><b>STOPPED</b></u>') + '\n'
         update.message.reply_text(t, parse_mode=ParseMode.HTML)
+
     if update.message.text.lower() == 'cześć':
         update.message.reply_text('Cześć!')
 
