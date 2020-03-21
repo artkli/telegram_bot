@@ -55,11 +55,10 @@ def meteo():
         q = client1.query("select * from " + m + " group by * order by desc limit 1", database=DB1)
         d.append(str(round(list(q.get_points())[0]['value'], 1)))
 
-    r = '<b><code>' + d[0] + 'C</code></b>, <b><code>' + d[1] + 'C</code></b> - temperatura wewnątrz\n' \
-                                                                '<b><code>' + d[
-            2] + 'C</code></b> - temperatura na zewnątrz\n' \
-                 '<b><code>' + d[3] + '%</code></b> - wilgotność\n' \
-                                      '<b><code>' + d[4] + 'hPa</code></b> - ciśnienie\n'
+    r = '<b><code>' + d[0] + 'C</code></b>, <b><code>' + d[1] + 'C</code></b> - temperatura wewnątrz\n' + \
+        '<b><code>' + d[2] + 'C</code></b> - temperatura na zewnątrz\n' + \
+        '<b><code>' + d[3] + '%</code></b> - wilgotność\n' + \
+        '<b><code>' + d[4] + 'hPa</code></b> - ciśnienie\n'
 
     return r
 
@@ -71,24 +70,26 @@ def system():
     """
     d = []
 
-    q = client2.query("SELECT value / 1000 FROM cpu_temperature group by * order by desc limit 1", database=DB2)
+    q = client2.query("SELECT value / 1000 FROM cpu_temperature group by * order by desc limit 1",
+                      database=DB2)
     d.append(str(round(list(q.get_points())[0]['value'], 1)))
 
     q = client2.query("SELECT usage_idle * -1 + 100 FROM cpu WHERE cpu='cpu-total' group by * order by desc limit 1",
                       database=DB2)
     d.append(str(round(list(q.get_points())[0]['usage_idle'], 1)))
 
-    q = client2.query("SELECT used_percent FROM mem group by * order by desc limit 1", database=DB2)
+    q = client2.query("SELECT used_percent FROM mem group by * order by desc limit 1",
+                      database=DB2)
     d.append(str(round(list(q.get_points())[0]['used_percent'], 1)))
 
-    q = client2.query("SELECT used_percent FROM disk group by * order by desc limit 1", database=DB2)
+    q = client2.query("SELECT used_percent FROM disk group by * order by desc limit 1",
+                      database=DB2)
     d.append(str(round(list(q.get_points())[0]['used_percent'], 1)))
 
-    r = '<b><code>' + d[0] + 'C</code></b> - temperatura CPU\n' \
-                             '<b><code>' + d[1] + '%</code></b> - użycie CPU\n' \
-                                                  '<b><code>' + d[2] + '%</code></b> - użycie RAM\n' \
-                                                                       '<b><code>' + d[
-            3] + '%</code></b> - zajętość dysku /\n'
+    r = '<b><code>' + d[0] + 'C</code></b> - temperatura CPU\n' + \
+        '<b><code>' + d[1] + '%</code></b> - użycie CPU\n' + \
+        '<b><code>' + d[2] + '%</code></b> - użycie RAM\n' + \
+        '<b><code>' + d[3] + '%</code></b> - zajętość dysku /\n'
 
     return r
 
