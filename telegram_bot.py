@@ -4,8 +4,10 @@ import subprocess
 from influxdb import InfluxDBClient
 from telegram import ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from pymongo import MongoClient
 
 from telegram_config import TOKEN, DB1, DB2, USER, PASS
+
 
 SERVICES = ["cube",
             "grafana-server",
@@ -22,10 +24,41 @@ SERVICES = ["cube",
 CMDS = {"pomiar": "pomiar",
         "meteo": "meteo",
         "system": "system",
-        "services": "services"}
+        "services": "services",
+        "wifi": "wifi"}
 
 client1 = InfluxDBClient('localhost', 8086, USER, PASS, DB1)
 client2 = InfluxDBClient('localhost', 8086, USER, PASS, DB2)
+
+mongo = MongoClient("mongodb://localhost:27117/")
+mongo_db1 = mongo["ace"]
+mongo_db2 = mongo["ace_stat"]
+client3 = mongo_db1["user"]
+client4 = mongo_db2["stat_5minutes"]
+
+
+def wifi_users():
+    query_users = client3.find()
+    query_clients = client4.find({}, {"x-set-user-num_sta": 1}).sort('_id', 1).limit(1)
+
+    users = {}
+    for u in query_users:
+        if 'name' in u:
+            users[str(u['mac'])] = u['name']
+        elif 'hostname' in u:
+            users[str(u['mac'])] = u['hostname']
+
+    names = []
+    for c in query_clients[0]["x-set-user-num_sta"]:
+        for m, u in users.items():
+            if m == c:
+                names.append(u)
+
+    t = ""
+    for n in sorted(names):
+        t = t + n + "\n"
+
+    return t
 
 
 def is_active(service):
@@ -140,6 +173,9 @@ def msg(update, context):
         for s in SERVICES:
             t = t + s + ' is' + (' running' if is_active(s) else ' <u><b>STOPPED</b></u>') + '\n'
         update.message.reply_text(t, parse_mode=ParseMode.HTML)
+
+    if update.message.text.lower() == CMDS['wifi']:
+        update.message.reply_text(wifi_users(), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == 'cześć':
         update.message.reply_text('Cześć!')
