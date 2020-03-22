@@ -4,6 +4,7 @@ import subprocess
 from influxdb import InfluxDBClient
 from telegram import ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+# sudo pip3 install pymongo==3.4.0
 from pymongo import MongoClient
 
 from telegram_config import TOKEN, DB1, DB2, USER, PASS
@@ -38,6 +39,10 @@ client4 = mongo_db2["stat_5minutes"]
 
 
 def wifi_users():
+    """
+    read active WiFi users from UniFi MongoDB
+    :return: list of wifi device names
+    """
     query_users = client3.find()
     query_clients = client4.find({}, {"x-set-user-num_sta": 1}).sort('_id', 1).limit(1)
 
