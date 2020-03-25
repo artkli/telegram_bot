@@ -57,9 +57,13 @@ def wifi_users():
                 if e['key'] == 'EVT_WU_Connected':
                     a = [e['time'], e['key'], e['user'], e['ssid'], e['channel']]
                     events.append(a)
+                    if e['user'] not in users:
+                        users[str(e['user'])] = '[' + e['user'].replace(':','').upper() + ']'
                 if e['key'] == 'EVT_WU_Disconnected':
                     a = [e['time'], e['key'], e['user']]
                     events.append(a)
+                    if e['user'] not in users:
+                        users[str(e['user'])] = '[' + e['user'].replace(':','').upper() + ']'
 
     sorted_events = sorted(events, key=lambda x: x[0])
 
@@ -77,7 +81,7 @@ def wifi_users():
     for e in last_events:
         print(e)
         if e and e[1] == 'EVT_WU_Connected':
-            c = '(5GHz)' if e[4] == '36' else '(2.4GHz)'
+            c = ' (5GHz)' if e[4] == '36' else ' (2.4GHz)'
             r = r + str(i) + '. <b><code>' + e[5] + '</code></b> - ' + e[3] + c + '\n'
             i = i + 1
 
