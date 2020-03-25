@@ -77,7 +77,7 @@ def wifi_users():
     for e in last_events:
         print(e)
         if e and e[1] == 'EVT_WU_Connected':
-            c = '(5GHz)' if e[4] == 36 else '(2.4GHz)'
+            c = '(5GHz)' if e[4] == '36' else '(2.4GHz)'
             r = r + str(i) + '. <b><code>' + e[5] + '</code></b> - ' + e[3] + c + '\n'
             i = i + 1
 
