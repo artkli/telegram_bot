@@ -4,8 +4,10 @@ import subprocess
 from influxdb import InfluxDBClient
 from telegram import ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from pymongo import MongoClient
 
 from telegram_config import TOKEN, DB1, DB2, USER, PASS
+
 
 SERVICES = ["cube",
             "grafana-server",
@@ -22,10 +24,64 @@ SERVICES = ["cube",
 CMDS = {"pomiar": "pomiar",
         "meteo": "meteo",
         "system": "system",
-        "services": "services"}
+        "services": "services",
+        "wifi": "wifi"}
 
 client1 = InfluxDBClient('localhost', 8086, USER, PASS, DB1)
 client2 = InfluxDBClient('localhost', 8086, USER, PASS, DB2)
+mongo = MongoClient("mongodb://localhost:27117/")
+mongo_db = mongo["ace"]
+client3 = mongo_db["user"]
+client4 = mongo_db["event"]
+
+
+def wifi_users():
+    """
+    read the WiFi devices connected
+    :return: answer string
+    """
+    query_users = client3.find()
+    query_events = client4.find()
+
+    users = {}
+    for u in query_users:
+        if 'name' in u:
+            users[str(u['mac'])] = u['name']
+        elif 'hostname' in u:
+            users[str(u['mac'])] = u['hostname']
+
+    events = []
+    for e in query_events:
+        if 'user' in e:
+            if 'key' in e:
+                if e['key'] == 'EVT_WU_Connected':
+                    a = [e['time'], e['key'], e['user'], e['ssid'], e['channel']]
+                    events.append(a)
+                if e['key'] == 'EVT_WU_Disconnected':
+                    a = [e['time'], e['key'], e['user']]
+                    events.append(a)
+
+    sorted_events = sorted(events, key=lambda x: x[0])
+
+    last_events = []
+    for m, h in users.items():
+        r = []
+        for i in sorted_events:
+            if i[2] == m:
+                r = i
+                r.append(h)
+        last_events.append(r)
+
+    r = ""
+    i = 1
+    for e in last_events:
+        print(e)
+        if e and e[1] == 'EVT_WU_Connected':
+            c = '(5GHz)' if e[4] == 36 else '(2.4GHz)'
+            r = r + str(i) + '. <b><code>' + e[5] + '</code></b> - ' + e[3] + c + '\n'
+            i = i + 1
+
+    return r
 
 
 def is_active(service):
@@ -141,6 +197,9 @@ def msg(update, context):
             t = t + s + ' is' + (' running' if is_active(s) else ' <u><b>STOPPED</b></u>') + '\n'
         update.message.reply_text(t, parse_mode=ParseMode.HTML)
 
+    if update.message.text.lower() == CMDS['wifi']:
+        update.message.reply_text(wifi_users(), parse_mode=ParseMode.HTML)
+
     if update.message.text.lower() == 'cześć':
         update.message.reply_text('Cześć!')
 
@@ -164,4 +223,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
