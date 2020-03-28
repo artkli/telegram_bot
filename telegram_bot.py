@@ -141,6 +141,10 @@ def system():
                       database=DB2)
     d.append(str(round(list(q.get_points())[0]['usage_idle'], 1)))
 
+    q = client2.query("SELECT load5 FROM system group by * order by desc limit 1",
+                      database=DB2)
+    d.append(str(round(list(q.get_points())[0]['load5'], 1)))
+
     q = client2.query("SELECT used_percent FROM mem group by * order by desc limit 1",
                       database=DB2)
     d.append(str(round(list(q.get_points())[0]['used_percent'], 1)))
@@ -151,8 +155,9 @@ def system():
 
     r = '<b><code>' + d[0] + 'C</code></b> - temperatura CPU\n' + \
         '<b><code>' + d[1] + '%</code></b> - użycie CPU\n' + \
-        '<b><code>' + d[2] + '%</code></b> - użycie RAM\n' + \
-        '<b><code>' + d[3] + '%</code></b> - zajętość dysku /\n'
+        '<b><code>' + d[2] + '</code></b> - kolejka procesów\n' + \
+        '<b><code>' + d[3] + '%</code></b> - użycie RAM\n' + \
+        '<b><code>' + d[4] + '%</code></b> - zajętość dysku /\n'
 
     return r
 
