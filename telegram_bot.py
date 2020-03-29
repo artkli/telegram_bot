@@ -206,17 +206,17 @@ def msg(update, context):
     if update.message.text.lower() == CMDS['system']:
         update.message.reply_text(system(), parse_mode=ParseMode.HTML)
 
-    if update.message.text.lower() == CMDS['pomiar']:
-        update.message.reply_text("<b><u>Meteo:</u></b>\n" + meteo(), parse_mode=ParseMode.HTML)
-        update.message.reply_text("<b><u>System:</u></b>\n" + system(), parse_mode=ParseMode.HTML)
-        update.message.reply_text("<b><u>Services:</u></b>\n" + services(), parse_mode=ParseMode.HTML)
-        update.message.reply_text("<b><u>Wifi:</u></b>\n" + wifi_users(), parse_mode=ParseMode.HTML)
-
     if update.message.text.lower() == CMDS['services']:
         update.message.reply_text(services(), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == CMDS['wifi']:
         update.message.reply_text(wifi_users(), parse_mode=ParseMode.HTML)
+
+    if update.message.text.lower() == CMDS['pomiar']:
+        update.message.reply_text("<b><u>Meteo:</u></b>\n" + meteo(), parse_mode=ParseMode.HTML)
+        update.message.reply_text("<b><u>System:</u></b>\n" + system(), parse_mode=ParseMode.HTML)
+        update.message.reply_text("<b><u>Services:</u></b>\n" + services(), parse_mode=ParseMode.HTML)
+        update.message.reply_text("<b><u>Wifi:</u></b>\n" + wifi_users(), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == 'cześć':
         update.message.reply_text('Cześć!')
