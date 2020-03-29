@@ -108,7 +108,7 @@ def is_active(service):
 
 def services():
     """
-    read ststus of services
+    read status of services
     :return: answer string
     """
     t = ''
