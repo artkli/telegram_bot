@@ -106,6 +106,17 @@ def is_active(service):
 
     return False
 
+def services():
+    """
+    read ststus of services
+    :return: answer string
+    """
+    t = ''
+    for s in SERVICES:
+        t = t + '<b><code>' + s + '</code></b> is' + (' running' if is_active(s) else ' <u><b>STOPPED</b></u>') + '\n'
+
+    return t
+
 
 def meteo():
     """
@@ -113,7 +124,6 @@ def meteo():
     :return: answer string
     """
     d = []
-
     for m in ("temp_wew", "a_temp", "temp_zewn", "a_wilg", "a_cisn"):
         q = client1.query("select * from " + m + " group by * order by desc limit 1", database=DB1)
         d.append(str(round(list(q.get_points())[0]['value'], 1)))
@@ -197,14 +207,13 @@ def msg(update, context):
         update.message.reply_text(system(), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == CMDS['pomiar']:
-        update.message.reply_text("<b><u>System:</u></b>\n" + system(), parse_mode=ParseMode.HTML)
         update.message.reply_text("<b><u>Meteo:</u></b>\n" + meteo(), parse_mode=ParseMode.HTML)
+        update.message.reply_text("<b><u>System:</u></b>\n" + system(), parse_mode=ParseMode.HTML)
+        update.message.reply_text("<b><u>Services:</u></b>\n" + services(), parse_mode=ParseMode.HTML)
+        update.message.reply_text("<b><u>Wifi:</u></b>\n" + wifi_users(), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == CMDS['services']:
-        t = ''
-        for s in SERVICES:
-            t = t + s + ' is' + (' running' if is_active(s) else ' <u><b>STOPPED</b></u>') + '\n'
-        update.message.reply_text(t, parse_mode=ParseMode.HTML)
+        update.message.reply_text(services(), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == CMDS['wifi']:
         update.message.reply_text(wifi_users(), parse_mode=ParseMode.HTML)
