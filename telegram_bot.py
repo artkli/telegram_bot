@@ -125,7 +125,7 @@ def get_log():
     read last log lines
     :return: answer string
     """
-    N = 10
+    N = 20
 
     t = ''
     with open(LOGFILENAME) as file:
@@ -213,7 +213,7 @@ def start(update, context):
     :param context: the context object
     """
     user = update.message.from_user
-    logger.info("Message: %s; from: %s", update.message.text, user.first_name)
+    logger.info("Message: %s; from: %s %s (%s)", update.message.text, user.first_name, user.last_name, user.username)
 
     update.message.reply_text('Tu Artur Klimek Bot')
 
@@ -225,7 +225,7 @@ def help(update, context):
     :param context: the context object
     """
     user = update.message.from_user
-    logger.info("Message: %s; from: %s", update.message.text, user.first_name)
+    logger.info("Message: %s; from: %s %s (%s)", update.message.text, user.first_name, user.last_name, user.username)
 
     t = 'Dostępne polecenia:'
     for c in CMDS:
@@ -241,7 +241,7 @@ def msg(update, context):
     :param context: the context object
     """
     user = update.message.from_user
-    logger.info("Message: %s; from: %s", update.message.text, user.first_name)
+    logger.info("Message: %s; from: %s %s (%s)", update.message.text, user.first_name, user.last_name, user.username)
 
     if update.message.text.lower() == CMDS['meteo']:
         update.message.reply_text(meteo(), parse_mode=ParseMode.HTML)
