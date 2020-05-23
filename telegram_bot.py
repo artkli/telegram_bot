@@ -1,5 +1,6 @@
 import sys
 import subprocess
+import logging
 
 from influxdb import InfluxDBClient
 from telegram import ParseMode
@@ -8,6 +9,8 @@ from pymongo import MongoClient
 
 from telegram_config import TOKEN, DB1, DB2, USER, PASS
 
+
+LOGFILENAME = '/home/pi/tele/telegram_bot.log'
 
 SERVICES = ["cube",
             "grafana-server",
@@ -23,6 +26,7 @@ SERVICES = ["cube",
 
 CMDS = {"pomiar": "pomiar",
         "meteo": "meteo",
+        "log": "log",
         "system": "system",
         "services": "services",
         "wifi": "wifi"}
@@ -33,6 +37,16 @@ mongo = MongoClient("mongodb://localhost:27117/")
 mongo_db = mongo["ace"]
 client3 = mongo_db["user"]
 client4 = mongo_db["event"]
+
+
+# Enable logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler(LOGFILENAME)
+formatter    = logging.Formatter('%(asctime)s : %(message)s')
+#formatter    = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 
 def wifi_users():
@@ -105,6 +119,22 @@ def is_active(service):
                 return True
 
     return False
+
+
+def get_log():
+    """
+    read last log lines
+    :return: answer string
+    """
+    N = 10
+
+    t = ''
+    with open(LOGFILENAME) as file:
+        for line in (file.readlines() [-N:]):
+            t = t + line
+
+    return t
+
 
 def services():
     """
@@ -183,6 +213,9 @@ def start(update, context):
     :param update: incoming telegram update
     :param context: the context object
     """
+    user = update.message.from_user
+    logger.info("Message: %s; from: %s", update.message.text, user.first_name)
+
     update.message.reply_text('Tu Artur Klimek Bot')
 
 
@@ -192,6 +225,9 @@ def help(update, context):
     :param update: incoming telegram update
     :param context: the context object
     """
+    user = update.message.from_user
+    logger.info("Message: %s; from: %s", update.message.text, user.first_name)
+
     t = 'Dostępne polecenia:'
     for c in CMDS:
         t = t + '\n"' + c + '"'
@@ -205,8 +241,14 @@ def msg(update, context):
     :param update: incoming telegram update
     :param context: the context object
     """
+    user = update.message.from_user
+    logger.info("Message: %s; from: %s", update.message.text, user.first_name)
+
     if update.message.text.lower() == CMDS['meteo']:
         update.message.reply_text(meteo(), parse_mode=ParseMode.HTML)
+
+    if update.message.text.lower() == CMDS['log']:
+        update.message.reply_text(get_log(), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == CMDS['system']:
         update.message.reply_text(system(), parse_mode=ParseMode.HTML)
@@ -219,6 +261,7 @@ def msg(update, context):
 
     if update.message.text.lower() == CMDS['pomiar']:
         update.message.reply_text("<b><u>Meteo:</u></b>\n" + meteo(), parse_mode=ParseMode.HTML)
+        update.message.reply_text("<b><u>Log:</u></b>\n" + get_log(), parse_mode=ParseMode.HTML)
         update.message.reply_text("<b><u>System:</u></b>\n" + system(), parse_mode=ParseMode.HTML)
         update.message.reply_text("<b><u>Services:</u></b>\n" + services(), parse_mode=ParseMode.HTML)
         update.message.reply_text("<b><u>Wifi:</u></b>\n" + wifi_users(), parse_mode=ParseMode.HTML)
