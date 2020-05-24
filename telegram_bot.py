@@ -123,6 +123,7 @@ def is_active(service):
 def add_log(update):
     """
     add message to log
+    :param update: incoming telegram update
     """
     user = update.message.from_user
     logger.info('\"%s\"; %s %s (%s)', update.message.text, user.first_name, user.last_name, user.id)
