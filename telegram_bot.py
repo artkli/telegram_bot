@@ -7,7 +7,7 @@ from telegram import ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from pymongo import MongoClient
 
-from telegram_config import TOKEN, DB1, DB2, USER, PASS
+from telegram_config import TOKEN, DB1, DB2, USER, PASS, ALLOWEDUSER
 
 
 LOGFILENAME = '/home/pi/tele/telegram_bot.log'
@@ -120,17 +120,25 @@ def is_active(service):
     return False
 
 
-def get_log():
+def add_log(update):
+    user = update.message.from_user
+    logger.info("Message: %s; from: %s %s (%s)", update.message.text, user.first_name, user.last_name, user.id)
+
+
+def get_log(update):
     """
     read last log lines
     :return: answer string
     """
-    N = 20
-
-    t = ''
-    with open(LOGFILENAME) as file:
-        for line in (file.readlines() [-N:]):
-            t = t + line
+    user = update.message.from_user
+    if user.id in ALLOWEDUSER:
+        N = 20
+        t = ''
+        with open(LOGFILENAME) as file:
+            for line in (file.readlines() [-N:]):
+                t = t + line
+    else:
+        t = '<b>Access denied</b>\n'
 
     return t
 
@@ -212,8 +220,7 @@ def start(update, context):
     :param update: incoming telegram update
     :param context: the context object
     """
-    user = update.message.from_user
-    logger.info("Message: %s; from: %s %s (%s)", update.message.text, user.first_name, user.last_name, user.username)
+    add_log(update)
 
     update.message.reply_text('Tu Artur Klimek Bot')
 
@@ -224,8 +231,7 @@ def help(update, context):
     :param update: incoming telegram update
     :param context: the context object
     """
-    user = update.message.from_user
-    logger.info("Message: %s; from: %s %s (%s)", update.message.text, user.first_name, user.last_name, user.username)
+    add_log(update)
 
     t = 'Dostępne polecenia:'
     for c in CMDS:
@@ -240,14 +246,13 @@ def msg(update, context):
     :param update: incoming telegram update
     :param context: the context object
     """
-    user = update.message.from_user
-    logger.info("Message: %s; from: %s %s (%s)", update.message.text, user.first_name, user.last_name, user.username)
+    add_log(update)
 
     if update.message.text.lower() == CMDS['meteo']:
         update.message.reply_text(meteo(), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == CMDS['log']:
-        update.message.reply_text(get_log(), parse_mode=ParseMode.HTML)
+        update.message.reply_text(get_log(update), parse_mode=ParseMode.HTML)
 
     if update.message.text.lower() == CMDS['system']:
         update.message.reply_text(system(), parse_mode=ParseMode.HTML)
@@ -260,7 +265,7 @@ def msg(update, context):
 
     if update.message.text.lower() == CMDS['pomiar']:
         update.message.reply_text("<b><u>Meteo:</u></b>\n" + meteo(), parse_mode=ParseMode.HTML)
-        update.message.reply_text("<b><u>Log:</u></b>\n" + get_log(), parse_mode=ParseMode.HTML)
+        update.message.reply_text("<b><u>Log:</u></b>\n" + get_log(update), parse_mode=ParseMode.HTML)
         update.message.reply_text("<b><u>System:</u></b>\n" + system(), parse_mode=ParseMode.HTML)
         update.message.reply_text("<b><u>Services:</u></b>\n" + services(), parse_mode=ParseMode.HTML)
         update.message.reply_text("<b><u>Wifi:</u></b>\n" + wifi_users(), parse_mode=ParseMode.HTML)
@@ -288,5 +293,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
