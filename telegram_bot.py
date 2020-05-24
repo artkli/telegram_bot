@@ -43,7 +43,7 @@ client4 = mongo_db["event"]
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler(LOGFILENAME)
-formatter    = logging.Formatter('%(asctime)s : %(message)s')
+formatter    = logging.Formatter('%(asctime)s; %(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
@@ -121,8 +121,11 @@ def is_active(service):
 
 
 def add_log(update):
+    """
+    add message to log
+    """
     user = update.message.from_user
-    logger.info("Message: %s; from: %s %s (%s)", update.message.text, user.first_name, user.last_name, user.id)
+    logger.info('\"%s\"; %s %s (%s)', update.message.text, user.first_name, user.last_name, user.id)
 
 
 def get_log(update):
