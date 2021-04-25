@@ -22,7 +22,8 @@ SERVICES = ["cube",
             "telegram-bot",
             "temp",
             "unifi",
-            "zigbee2mqtt"]
+            "zigbee2mqtt",
+			"nfc"]
 
 CMDS = {"pomiar": "pomiar",
         "meteo": "meteo",
