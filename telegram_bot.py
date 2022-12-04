@@ -15,7 +15,7 @@ LOGFILENAME = '/home/pi/tele/telegram_bot.log'
 SERVICES = ["cube",
             "grafana-server",
             "influxdb",
-            "lircd",
+            # "lircd",
             "mosquitto",
             "pep",
             "telegraf",
@@ -166,11 +166,13 @@ def meteo():
     :return: answer string
     """
     d = []
-    for m in ("temp_wew", "a_temp", "temp_zewn", "a_wilg", "a_cisn"):
+    for m in ("temp_wew", "a_temp", "temp_zewn", "a_wilg", "a_cisn", "s_temp"):
         q = client1.query("select * from " + m + " group by * order by desc limit 1", database=DB1)
         d.append(str(round(list(q.get_points())[0]['value'], 1)))
 
-    r = '<b><code>' + d[0] + 'C</code></b>, <b><code>' + d[1] + 'C</code></b> - temperatura wewnątrz\n' + \
+    r = '<b><code>' + d[0] + 'C</code></b> - temperatura w salonie\n' + \
+        '<b><code>' + d[5] + 'C</code></b> - temperatura w sypialni\n' + \
+        '<b><code>' + d[1] + 'C</code></b> - temperatura na strychu\n' + \
         '<b><code>' + d[2] + 'C</code></b> - temperatura na zewnątrz\n' + \
         '<b><code>' + d[3] + '%</code></b> - wilgotność\n' + \
         '<b><code>' + d[4] + 'hPa</code></b> - ciśnienie\n'
