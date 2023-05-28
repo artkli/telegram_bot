@@ -172,7 +172,7 @@ def meteo():
 
     r = '<b><code>' + d[0] + 'C</code></b> - temperatura w salonie\n' + \
         '<b><code>' + d[5] + 'C</code></b> - temperatura w sypialni\n' + \
-        '<b><code>' + d[6] + 'C</code></b> - temperatura w pokouju z oknami dachowymi\n' + \
+        '<b><code>' + d[6] + 'C</code></b> - temperatura w pokoju z oknami dachowymi\n' + \
         '<b><code>' + d[1] + 'C</code></b> - temperatura na strychu\n' + \
         '<b><code>' + d[2] + 'C</code></b> - temperatura na zewnątrz\n' + \
         '<b><code>' + d[3] + '%</code></b> - wilgotność\n' + \
